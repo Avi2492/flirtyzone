@@ -50,3 +50,78 @@ export const signup = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await User.findOne({ username });
+
+    const isPasswordCorrect = await bcrypt.compare(
+      password,
+      user?.password || ""
+    );
+
+    if (!user || !isPasswordCorrect) {
+      return res
+        .status(400)
+        .json({ error: "Bhai Galat Password Ya fir Username Bhare ho " });
+    }
+
+    generateTokenAndCookie(user._id, res);
+
+    res.status(200).json({
+      _id: user._id,
+      fullname: user.fullname,
+      username: user.username,
+      profilePic: user.profilePic,
+    });
+  } catch (error) {
+    console.log("Error in the login route", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res.cookie("jwt", "", { maxAge: 0 });
+    res.status(200).json({ message: "Logout Successfull" });
+  } catch (error) {
+    console.log("Error in the logout route", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const deleteMyAccount = async (req, res) => {
+  try {
+    const { username } = req.body;
+
+    const deleteAcc = await User.findOneAndDelete(username);
+
+    if (!deleteAcc) {
+      res.status(400).json({ error: "User Not Found" });
+    }
+
+    res.status(200).json({ message: "Account Deleted Success!" });
+  } catch (error) {
+    console.log("Error in delete route", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const updateAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updateDetails = await User.findByIdAndUpdate(id, req.body);
+
+    if (!updateDetails) {
+      res.status(400).json({ message: "User Not found" });
+    }
+
+    res.status(200).json({ message: "Details Updated Success!" });
+  } catch (error) {
+    console.log("Error in Update route", error.message);
+    res.status(500).json({ error: "Internal Server Error!" });
+  }
+};
