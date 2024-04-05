@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  deleteMessages,
+  // deleteMessages,
   getMessage,
   sendMessage,
 } from "../controllers/message.controller.js";
@@ -9,7 +9,7 @@ import protectRoute from "../middleware/protectRoute.js";
 const router = express.Router();
 
 router.get("/:id", protectRoute, getMessage);
-router.delete("/deleteMessages/:id", deleteMessages);
+// router.delete("/deleteMessages/:id", deleteMessages);
 router.post("/send/:id", protectRoute, sendMessage);
 
 export default router;
